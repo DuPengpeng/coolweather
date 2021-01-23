@@ -1,11 +1,13 @@
 package com.coolweather.android.util;
 
 import android.text.TextUtils;
-import android.widget.TextView;
 
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.gson.Daily_forecast;
+import com.coolweather.android.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +59,7 @@ public class Utility {
     //解析和处理服务器返回的县级数据
     public static boolean handleCountyResponse(String response, int cityId) {
         if (!TextUtils.isEmpty(response)) {
-            try{
+            try {
                 JSONArray allCounties = new JSONArray(response);
                 for (int i = 0; i < allCounties.length(); i++) {
                     JSONObject countyObject = allCounties.getJSONObject(i);
@@ -68,10 +70,38 @@ public class Utility {
                     county.save();
                 }
                 return true;
-            }catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
         return false;
+    }
+
+    /**
+     * 将返回的JSON数据解析成Weather实体类
+     */
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            String weatherContent = jsonObject.toString();
+            return new Gson().fromJson(weatherContent, Weather.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 将返回的JSON数据解析成Daily_forecast实体类
+     */
+    public static Daily_forecast handleDailyForecastResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            String dailyContent = jsonObject.toString();
+            return new Gson().fromJson(dailyContent, Daily_forecast.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

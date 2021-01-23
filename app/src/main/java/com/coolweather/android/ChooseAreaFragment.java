@@ -1,7 +1,10 @@
 package com.coolweather.android;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,12 +93,23 @@ public class ChooseAreaFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(currentLevel == LEVEL_PROVINCE){
+                if (currentLevel == LEVEL_PROVINCE) {
                     selectedProvince = provinceList.get(position);
                     queryCities();
-                }else if(currentLevel == LEVEL_CITY){
+                } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTY) {
+                    String weatherId = countyList.get(position).getWeatherId();
+                    String cityName = countyList.get(position).getCountyName();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id", weatherId);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
+                            (getActivity()).edit();
+                    editor.putString("city_name",cityName);
+                    editor.apply();
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -103,9 +117,9 @@ public class ChooseAreaFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(currentLevel == LEVEL_COUNTY){
+                if (currentLevel == LEVEL_COUNTY) {
                     queryCities();
-                }else if (currentLevel == LEVEL_CITY){
+                } else if (currentLevel == LEVEL_CITY) {
                     queryProvinces();
                 }
             }
@@ -178,7 +192,7 @@ public class ChooseAreaFragment extends Fragment {
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectedCity.getCityCode();
             String address = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
-            queryFromServer(address,"county");
+            queryFromServer(address, "county");
         }
     }
 
@@ -198,7 +212,7 @@ public class ChooseAreaFragment extends Fragment {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(),"加载失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
